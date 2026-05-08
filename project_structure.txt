@@ -1,0 +1,134 @@
+Folder PATH listing for volume FileShares
+Volume serial number is 4E67-5663
+W:.
+¦   .gitignore
+¦   CHANGELOG.md
+¦   ENGTools.bat
+¦   project_structure.txt
+¦   README.md
+¦   wiki.md
+¦   
++---backup
+¦   ¦   CHANGELOG.md
+¦   ¦   ENGTools.bat
+¦   ¦   ENGTools.code-workspace
+¦   ¦   README.md
+¦   ¦   
+¦   +---Dependencies
+¦   ¦   +---ap
+¦   ¦   ¦       tmxtexttotag.properties
+¦   ¦   ¦       
+¦   ¦   +---bats
+¦   ¦   ¦       eng.bat
+¦   ¦   ¦       TFC.bat
+¦   ¦   ¦       TFC_custom.bat
+¦   ¦   ¦       TFC_epiroc.bat
+¦   ¦   ¦       TFC_proof.bat
+¦   ¦   ¦       
+¦   ¦   +---python
+¦   ¦           cleanprops.py
+¦   ¦           distribute_TLC.py
+¦   ¦           epiroc_txt.py
+¦   ¦           escape_more_than.py
+¦   ¦           exact_match.py
+¦   ¦           excel2tmx_multilingual.py
+¦   ¦           flatten_folder_structure.py
+¦   ¦           hide_no_colour.py
+¦   ¦           proofread_state.py
+¦   ¦           Regin_FTC-2-Excel.py
+¦   ¦           Regin_reverse.py
+¦   ¦           remove_empty_xlf.py
+¦   ¦           rename_platform_locales.py
+¦   ¦           rename_translation_2_0.py
+¦   ¦           requirements.txt
+¦   ¦           unflatten_folder_structure.py
+¦   ¦           unhide_rename_docx.py
+¦   ¦           unhide_rename_xlsx.py
+¦   ¦           updateTOC.py
+¦   ¦           
+¦   +---Parsers
+¦   ¦   +---okapi
+¦   ¦           okf_openxml@testcopy-of-default.fprm
+¦   ¦           okf_regex@epiroc_txt.fprm
+¦   ¦           okf_xliff@xlf2tmx.fprm
+¦   ¦           
+¦   +---Pipelines
+¦   ¦       id_based_alignment.pln
+¦   ¦       pseudo.pln
+¦   ¦       xlftotmx.pln
+¦   ¦       
+¦   +---Segmentation
+¦       +---okapi
+¦               alternate-default.srx
+¦               defaultSegmentation.srx
+¦               languagetool.srx
+¦               omegaT.srx
+¦               
++---Dependencies
+¦   +---ap
+¦   ¦       tmxtexttotag.properties
+¦   ¦       
+¦   +---bats
+¦   ¦       eng.bat
+¦   ¦       TFC.bat
+¦   ¦       TFC_custom.bat
+¦   ¦       TFC_daimler.bat
+¦   ¦       TFC_epiroc.bat
+¦   ¦       TFC_proof.bat
+¦   ¦       TFC_xlf.bat
+¦   ¦       
+¦   +---macros
+¦   ¦       split_excelsxlsx.xlsm
+¦   ¦       
+¦   +---python
+¦           cleanprops.py
+¦           csv-delete_column.py
+¦           daimler_merge_multilingual_excel.py
+¦           daimler_split.py
+¦           distribute_TLC.py
+¦           epiroc_txt.py
+¦           escape_more_than.py
+¦           exact_match.py
+¦           excel2tmx_multilingual.py
+¦           flatten_folder_structure.py
+¦           hide_no_colour.py
+¦           maxlen.py
+¦           merge2.py
+¦           proofread_state.py
+¦           pseudo.py
+¦           Regin_FTC-2-Excel.py
+¦           Regin_reverse.py
+¦           remove_empty_xlf.py
+¦           rename_platform_locales.py
+¦           rename_translation_2_0.py
+¦           requirements.txt
+¦           sdlxliff_translate_state.py
+¦           split2.py
+¦           transfer.py
+¦           unflatten_folder_structure.py
+¦           unhide_rename_docx.py
+¦           unhide_rename_xlsx.py
+¦           updateTOC.py
+¦           vtt_srt.py
+¦           web-crawler.py
+¦           
++---Parsers
+¦   +---okapi
+¦           okf_openxml@daimler_multilingual.fprm
+¦           okf_openxml@testcopy-of-default.fprm
+¦           okf_regex@epiroc_txt.fprm
+¦           okf_xliff@xlf2tmx.fprm
+¦           okf_xliff@XLIFF-with-placeholder.fprm
+¦           
++---Pipelines
+¦       id_based_alignment.pln
+¦       pseudo.pln
+¦       xlftotmx.pln
+¦       
++---Segmentation
+    +---okapi
+            alternate-default.srx
+            defaultSegmentation.srx
+            languagetool.srx
+            omegaT.srx
+            

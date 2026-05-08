@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<srx xmlns="http://www.lisa.org/srx20" xmlns:okpsrx="http://okapi.sf.net/srx-extensions" version="2.0">
+  <header segmentsubflows="yes" cascade="yes">
+    <formathandle type="start" include="no"/>
+    <formathandle type="end" include="yes"/>
+    <formathandle type="isolated" include="no"/>
+    <okpsrx:options oneSegmentIncludesAll="no" trimLeadingWhitespaces="yes" trimTrailingWhitespaces="yes" useIcu4jBreakRules="yes"/>
+  </header>
+  <body>
+    <languagerules>
+
+      <languagerule languagerulename="Spanish">
+        <rule break="no">
+          <beforebreak>(?i)\b(Aprox|Art|Av|Avda|Cap|Cía|Cf|Cfr|Col|D|Da|Dña|Dir|Doc|Dr|Dra|Dres|Ej|Excmo|Fig|Gral|Hab|Hno|Hnos|Ing|Max|Min|Num|Nro|Pág|Págs|Prof|Profa|Sr|Sra|Sras|Sres|Srtas?|Tel|Tit|Ud|Uds|Vol|Vd|Vds|etc|gob|depto|dpto|pág|cop|med|mill|trad|apell|apénd|ntra|ene|feb|mar|abr|jun|jul|ago|sep|oct|nov|dic)\.</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+        <rule break="no">
+          <beforebreak>(?i)\b(Art|Tel|Fax|Pág|Págs|Nro|Num|Mod|Ref|Ed)\.</beforebreak>
+          <afterbreak>\s*\d+</afterbreak>
+        </rule>
+        <rule break="no">
+          <beforebreak>(?i)\b(p\.?\s*ej|i\.?\s*e|v\.?\s*gr|a\.?\s*c|d\.?\s*c|EE\.?\s*UU|FF\.?\s*CC)\.</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+      </languagerule>
+
+      <languagerule languagerulename="English">
+        <rule break="no">
+          <beforebreak>(?i)\b(Mr|Mrs|Ms|Dr|Prof|Rev|Capt|Gen|St|Mt|Vol|Fig|Eq|Ref|Sec|App|Ed|Bros|Co|Corp|Inc|Ltd|Jr|Sr|vs|etc|Hon|Rep|Sen|Pres|Assoc|Dept|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept|Oct|Nov|Dec|approx|Bldg|Capt)\.</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+        <rule break="no">
+          <beforebreak>(?i)\b(e\.?\s*g|i\.?\s*e|a\.?\s*m|p\.?\s*m|Ph\.?\s*D|U\.?\s*S|U\.?\s*K|U\.?\s*S\.?\s*A)\.</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+        <rule break="no"> <beforebreak>(?i)\b(No|Ref|Vol|Fig|p|pp)\.</beforebreak>
+          <afterbreak>\s*\d+</afterbreak>
+        </rule>
+      </languagerule>
+
+      <languagerule languagerulename="French">
+        <rule break="no">
+          <beforebreak>(?i)\b(M|Mme|Mmes|Mlle|Mlles|Dr|Pr|Prof|Cie|Me|Mgr|St|Ste|art|cf|chap|éd|env|etc|fig|hab|max|min|p|tél|vol|boul|av|Cass|Bull|Ass|Chron|Dir|Doc|Ex|Fasc|Gén|Jur|Ord|Rép|Rev|Sect|Somm|Trib)\.</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+      </languagerule>
+
+      <languagerule languagerulename="German">
+        <rule break="no">
+          <beforebreak>(?i)\b(Abs|Abt|bzw|ca|Dr|etc|evtl|gem|ggf|inkl|max|min|Mrd|MwSt|Nr|Prof|St|Tel|usw|vgl|Hr|Fr|bspw|allg|einschl|urspr|Aufl|Bd|Mio)\.</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+        <rule break="no">
+          <beforebreak>(?i)\b(z\.?\s*B|z\.?\s*T|z\.?\s*Zt|d\.?\s*h|u\.?\s*a|i\.?\s*d\.?\s*R|u\.?\s*zw)\.</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+        <rule break="no">
+          <beforebreak>\b\d+\.</beforebreak>
+          <afterbreak>\s+(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember|Jan|Feb|Mär|Apr|Jun|Jul|Aug|Sept|Okt|Nov|Dez|Jahrhundert|Verordnung|Senat|Kammer)\b</afterbreak>
+        </rule>
+      </languagerule>
+
+      <languagerule languagerulename="Default">
+        
+        <rule break="no">
+          <beforebreak>\b(\p{Lu}\.)+</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+
+        <rule break="no">
+          <beforebreak>\b\p{Lu}\.</beforebreak>
+          <afterbreak>\s\p{Lu}</afterbreak>
+        </rule>
+
+        <rule break="no">
+          <beforebreak>^\s*([0-9]+|[a-zA-Z])\.</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+        <rule break="no">
+          <beforebreak>\b\d+\.</beforebreak>
+          <afterbreak>\d+\b</afterbreak>
+        </rule>
+
+        <rule break="no">
+          <beforebreak>(?i)(https?|ftp|mailto)://[^\s/$.?#].[^\s]*\?</beforebreak>
+          <afterbreak>[^\s]+</afterbreak>
+        </rule>
+        <rule break="no">
+          <beforebreak>[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.</beforebreak>
+          <afterbreak>\s</afterbreak>
+        </rule>
+
+        <rule break="no">
+          <beforebreak>(\.\.\.|…)</beforebreak>
+          <afterbreak>\s+\p{Ll}</afterbreak>
+        </rule>
+
+        <rule break="yes">
+          <beforebreak>[\n\r]+</beforebreak>
+          <afterbreak></afterbreak>
+        </rule>
+
+        <rule break="yes">
+          <beforebreak>[\.\!\?]+[\"\'\»\”\)]*</beforebreak>
+          <afterbreak>\s+(memoQ|iPhone|iPad|iTunes|eBay|signoSign)\b</afterbreak>
+        </rule>
+
+        <rule break="yes">
+          <beforebreak>[\.\!\?]+[\"\'\»\”\)]*</beforebreak>
+          <afterbreak>\s+[\"\'\«\“\(]*\p{Lu}</afterbreak>
+        </rule>
+
+        <rule break="yes">
+          <beforebreak>[。！？]</beforebreak>
+          <afterbreak></afterbreak>
+        </rule>
+
+      </languagerule>
+    </languagerules>
+
+    <maprules>
+      <languagemap languagepattern="[Ee][Nn].*" languagerulename="English"/>
+      <languagemap languagepattern="[Ee][Ss].*" languagerulename="Spanish"/>
+      <languagemap languagepattern="[Ff][Rr].*" languagerulename="French"/>
+      <languagemap languagepattern="[Dd][Ee].*" languagerulename="German"/>
+      <languagemap languagepattern=".*" languagerulename="Default"/>
+    </maprules>
+  </body>
+</srx>

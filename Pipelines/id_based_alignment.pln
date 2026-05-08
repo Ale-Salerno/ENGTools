@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rainbowPipeline version="1"><step class="net.sf.okapi.steps.common.RawDocumentToFilterEventsStep"></step>
+<step class="net.sf.okapi.steps.idaligner.IdBasedAlignerStep">#v1
+tmxOutputPath=C:\TMX\alignment.tmx
+generateTMX.b=true
+replaceWithSource.b=false
+copyToTarget.b=true
+storeAsAltTranslation.b=false
+suppressTusWithNoTarget.b=false
+useTextUnitIds.b=false</step>
+</rainbowPipeline>

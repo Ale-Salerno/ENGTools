@@ -1,0 +1,29 @@
+#v1
+regexOptions.i=40
+startString="
+endString="
+extractOuterStrings.b=false
+useBSlashEscape.b=true
+useDoubleCharEscape.b=false
+removeBSlashEscape.b=false
+mimeType=text/plain
+oneLevelGroups.b=false
+subFilter=
+useLd.b=true
+localizeOutside.b=true
+ruleCount.i=1
+metaRuleCount.i=0
+rule0.ruleName=Komax-txt
+rule0.ruleType.i=1
+rule0.expr=\(English\)"(.*?)", // (.*?)\r*\n*\(.*?\)"(.*?)",
+rule0.groupSource.i=1
+rule0.groupTarget.i=3
+rule0.groupName.i=2
+rule0.groupNote.i=2
+rule0.preserveWS.b=true
+rule0.useCodeFinder.b=true
+rule0.sample=// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Start", // Start$0a$(Bulgarian)"Start", // Start$0a$$0a$// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Pos. system away", // PosSystemAway$0a$(Bulgarian)"Pos. system away", // PosSystemAway$0a$$0a$// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Pos. system not away", // PosSystemNotAway$0a$(Bulgarian)"Pos. system not away", // PosSystemNotAway$0a$$0a$// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Module ready", // ModuleReady$0a$(Bulgarian)"Module ready", // ModuleReady$0a$$0a$// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Process done", // ProcessDone$0a$(Bulgarian)"Process done", // ProcessDone$0a$$0a$// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Quality done", // QualityDone$0a$(Bulgarian)"Quality done", // QualityDone$0a$$0a$// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Quality result", // QualityResult$0a$(Bulgarian)"Quality result", // QualityResult$0a$$0a$// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Bad crimp pending", // BadCrimpPending$0a$(Bulgarian)"Bad crimp pending", // BadCrimpPending$0a$$0a$// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Warning pending", // WarningPending$0a$(Bulgarian)"Warning pending", // WarningPending$0a$$0a$// font: GUI_FontArialBold22AA4; maxHeight: 50; maxWidth: 235$0a$(English)"Error pending", // ErrorPending$0a$(Bulgarian)"Error pending", // ErrorPending$0a$$0a$// Actifsource ID=[f9ad1233-345d-11e5-8cf7-63dd597e6a52,62c94313-2ace-11ed-a795-d3ac45744233,0759c1d5-f714-11e9-9cd9-7ba413eabba1,Hash]$0a$
+rule0.codeFinderRules.count.i=1
+rule0.codeFinderRules.sample=
+rule0.codeFinderRules.useAllRulesWhenTesting.b=false
+rule0.codeFinderRules.rule0=\\n

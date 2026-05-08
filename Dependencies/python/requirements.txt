@@ -1,0 +1,8 @@
+pandas
+openpyxl
+xlrd
+xlwt
+pywin32
+python-docx
+langdetect
+regex
