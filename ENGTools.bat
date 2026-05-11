@@ -994,7 +994,7 @@ set /p TASK="Enter your choice [0-2]: "
 if "%TASK%"=="" (
     echo [ERROR] No input provided. Please enter a valid number.
     pause
-    goto REGIN
+    goto TRANSLATION
 )
 
 if "%TASK%"=="1" goto TRANSLATIONTWO
@@ -1003,7 +1003,7 @@ if "%TASK%"=="0" goto WELCOME
 
 echo [ERROR] Invalid option. Please try again.
 pause
-goto REGIN
+goto TRANSLATION
 
 :TRANSLATIONTWO
 cls
