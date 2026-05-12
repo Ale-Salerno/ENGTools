@@ -6,3 +6,8 @@ pywin32
 python-docx
 langdetect
 regex
+lxml
+PyMuPDF
+requests
+beautifulsoup4
+PySide6

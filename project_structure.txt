@@ -1,134 +1,111 @@
-Folder PATH listing for volume FileShares
-Volume serial number is 4E67-5663
-W:.
-�   .gitignore
-�   CHANGELOG.md
-�   ENGTools.bat
-�   project_structure.txt
-�   README.md
-�   wiki.md
-�   
-+---backup
-�   �   CHANGELOG.md
-�   �   ENGTools.bat
-�   �   ENGTools.code-workspace
-�   �   README.md
-�   �   
-�   +---Dependencies
-�   �   +---ap
-�   �   �       tmxtexttotag.properties
-�   �   �       
-�   �   +---bats
-�   �   �       eng.bat
-�   �   �       TFC.bat
-�   �   �       TFC_custom.bat
-�   �   �       TFC_epiroc.bat
-�   �   �       TFC_proof.bat
-�   �   �       
-�   �   +---python
-�   �           cleanprops.py
-�   �           distribute_TLC.py
-�   �           epiroc_txt.py
-�   �           escape_more_than.py
-�   �           exact_match.py
-�   �           excel2tmx_multilingual.py
-�   �           flatten_folder_structure.py
-�   �           hide_no_colour.py
-�   �           proofread_state.py
-�   �           Regin_FTC-2-Excel.py
-�   �           Regin_reverse.py
-�   �           remove_empty_xlf.py
-�   �           rename_platform_locales.py
-�   �           rename_translation_2_0.py
-�   �           requirements.txt
-�   �           unflatten_folder_structure.py
-�   �           unhide_rename_docx.py
-�   �           unhide_rename_xlsx.py
-�   �           updateTOC.py
-�   �           
-�   +---Parsers
-�   �   +---okapi
-�   �           okf_openxml@testcopy-of-default.fprm
-�   �           okf_regex@epiroc_txt.fprm
-�   �           okf_xliff@xlf2tmx.fprm
-�   �           
-�   +---Pipelines
-�   �       id_based_alignment.pln
-�   �       pseudo.pln
-�   �       xlftotmx.pln
-�   �       
-�   +---Segmentation
-�       +---okapi
-�               alternate-default.srx
-�               defaultSegmentation.srx
-�               languagetool.srx
-�               omegaT.srx
-�               
-+---Dependencies
-�   +---ap
-�   �       tmxtexttotag.properties
-�   �       
-�   +---bats
-�   �       eng.bat
-�   �       TFC.bat
-�   �       TFC_custom.bat
-�   �       TFC_daimler.bat
-�   �       TFC_epiroc.bat
-�   �       TFC_proof.bat
-�   �       TFC_xlf.bat
-�   �       
-�   +---macros
-�   �       split_excelsxlsx.xlsm
-�   �       
-�   +---python
-�           cleanprops.py
-�           csv-delete_column.py
-�           daimler_merge_multilingual_excel.py
-�           daimler_split.py
-�           distribute_TLC.py
-�           epiroc_txt.py
-�           escape_more_than.py
-�           exact_match.py
-�           excel2tmx_multilingual.py
-�           flatten_folder_structure.py
-�           hide_no_colour.py
-�           maxlen.py
-�           merge2.py
-�           proofread_state.py
-�           pseudo.py
-�           Regin_FTC-2-Excel.py
-�           Regin_reverse.py
-�           remove_empty_xlf.py
-�           rename_platform_locales.py
-�           rename_translation_2_0.py
-�           requirements.txt
-�           sdlxliff_translate_state.py
-�           split2.py
-�           transfer.py
-�           unflatten_folder_structure.py
-�           unhide_rename_docx.py
-�           unhide_rename_xlsx.py
-�           updateTOC.py
-�           vtt_srt.py
-�           web-crawler.py
-�           
-+---Parsers
-�   +---okapi
-�           okf_openxml@daimler_multilingual.fprm
-�           okf_openxml@testcopy-of-default.fprm
-�           okf_regex@epiroc_txt.fprm
-�           okf_xliff@xlf2tmx.fprm
-�           okf_xliff@XLIFF-with-placeholder.fprm
-�           
-+---Pipelines
-�       id_based_alignment.pln
-�       pseudo.pln
-�       xlftotmx.pln
-�       
-+---Segmentation
-    +---okapi
-            alternate-default.srx
-            defaultSegmentation.srx
-            languagetool.srx
-            omegaT.srx
-            
+ENGTools/
+├── CHANGELOG.md
+├── ENGTools.bat
+├── README.md
+├── project_structure.txt
+├── wiki.md
+├── Dependencies/
+│   ├── ap/
+│   │   └── tmxtexttotag.properties
+│   ├── bats/
+│   │   ├── TFC.bat
+│   │   ├── TFC_axistype4.bat
+│   │   ├── TFC_beurer.bat
+│   │   ├── TFC_custom.bat
+│   │   ├── TFC_daimler.bat
+│   │   ├── TFC_epiroc.bat
+│   │   ├── TFC_proof.bat
+│   │   ├── TFC_xlf.bat
+│   │   ├── eng.bat
+│   │   ├── scholly_QA.bat
+│   │   └── scholly_TFC.bat
+│   ├── fonts/
+│   │   ├── BBraunTypeDigital-Bold.otf
+│   │   ├── BBraunTypeDigital-Regular.otf
+│   │   ├── SourceSans3-Bold.ttf
+│   │   └── SourceSans3-Regular.ttf
+│   ├── macros/
+│   │   ├── beurer_colours.xlsm
+│   │   └── split_excelsxlsx.xlsm
+│   ├── mappings/
+│   │   ├── mapping_Atlas.xlsx
+│   │   ├── mapping_Edwards.xlsx
+│   │   └── mapping_Leybold.xlsx
+│   └── python/
+│       ├── Anonymizer.py
+│       ├── Atlas-OLD.py
+│       ├── Atlas.py
+│       ├── Edwards.py
+│       ├── Leybold.py
+│       ├── Regin_FTC-2-Excel.py
+│       ├── Regin_reverse.py
+│       ├── RenameFolder2FilesExceptSdlxliff.py
+│       ├── beurer_merge.py
+│       ├── beurer_split.py
+│       ├── cleanprops.py
+│       ├── comillas_true.py
+│       ├── csv-delete_column.py
+│       ├── daimler_merge_multilingual_excel.py
+│       ├── daimler_split.py
+│       ├── distribute_TLC.py
+│       ├── epiroc_txt.py
+│       ├── escape_more_than.py
+│       ├── exact_match.py
+│       ├── excel2tmx_multilingual.py
+│       ├── export_pdf_comments.py
+│       ├── flatten_folder_structure.py
+│       ├── hide_no_colour.py
+│       ├── maxlen.py
+│       ├── merge2.py
+│       ├── prep_qa_merge_json.py
+│       ├── proofread_state.py
+│       ├── pseudo.py
+│       ├── remove_empty_xlf.py
+│       ├── rename_platform_locales.py
+│       ├── rename_translation_2_0.py
+│       ├── requirements.txt
+│       ├── scholly_csv2json.py
+│       ├── scholly_json2tmx.py
+│       ├── scholly_merge.py
+│       ├── scholly_prep.py
+│       ├── scholly_qa.py
+│       ├── sdlxliff_translate_state.py
+│       ├── split2.py
+│       ├── transfer.py
+│       ├── unflatten_folder_structure.py
+│       ├── unhide_rename_docx.py
+│       ├── unhide_rename_word.py
+│       ├── unhide_rename_xlsx.py
+│       ├── updateTOC.py
+│       ├── vtt_srt.py
+│       └── web-crawler.py
+├── Parsers/
+│   └── okapi/
+│       ├── okf_idml@codefinder.fprm
+│       ├── okf_json@alignment_test.fprm
+│       ├── okf_openxml@alignment_test.fprm
+│       ├── okf_openxml@beurer.fprm
+│       ├── okf_openxml@daimler_multilingual.fprm
+│       ├── okf_openxml@default.fprm
+│       ├── okf_openxml@testcopy-of-default.fprm
+│       ├── okf_regex@AxisType4.fprm
+│       ├── okf_regex@AxisType42.fprm
+│       ├── okf_regex@Komax-txt.fprm
+│       ├── okf_regex@copy-of-default.fprm
+│       ├── okf_regex@copy-of-default_patrick.fprm
+│       ├── okf_regex@epiroc_txt.fprm
+│       ├── okf_table@scholly_csv.fprm
+│       ├── okf_table@test_CSV_RAQUEL.fprm
+│       ├── okf_xliff@XLIFF-with-placeholder.fprm
+│       └── okf_xliff@xlf2tmx.fprm
+├── Pipelines/
+│   ├── id_based_alignment.pln
+│   ├── pseudo.pln
+│   └── xlftotmx.pln
+└── Segmentation/
+    └── okapi/
+        ├── alternate-default.srx
+        ├── defaultSegmentation.srx
+        ├── defaultSegmentation_experimental.srx
+        ├── languagetool.srx
+        └── omegaT.srx

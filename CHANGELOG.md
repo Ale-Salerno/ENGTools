@@ -1,5 +1,13 @@
 # ENGTools Changelog
 
+* **Unreleased**
+    * Fixed broken menu routing in `ENGTools.bat`, including the Translation submenu and the Extract PDF Comments entry.
+    * Restored the Translation 2.0 exact-match preservation step.
+    * Fixed command-line issues in the AXIS, Epiroc, Beurer, alignment, and TM resegmentation workflows.
+    * Corrected misleading headers in helper batch files.
+    * Updated `README.md`, `wiki.md`, `project_structure.txt`, and Python dependency declarations to reflect the current repository contents.
+    * Added explicit documentation for specialized workflows that still need environment-specific or human review.
+
 * **v0.2 - Enhanced Stability, Maintainability, and Functionality**
     * **Core Improvements:**
         * **Version Control & Project Structure:**
@@ -31,7 +39,7 @@
             * Enables selective hiding of text in `.docx` files based on font and highlight colors.
             * Generates an HTML report with color indices.
             * Provides filtering options (hide selected or hide non-selected colors).
-          * **MS Office Tools: Split/Merge multilingual .xlsx files:**
+        * **MS Office Tools: Split/Merge multilingual .xlsx files:**
             * Splits a multilingual Excel file into individual bilingual files based on source and target language columns.
             * Generates detailed metadata to enable seamless back merging of updated translations into the original file.
             * Preserves original formatting and structure, ensuring consistency across split and merged documents.
