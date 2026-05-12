@@ -1,10 +1,10 @@
 @echo off
 REM ================================================================================
-REM TFC_AXISType4.bat - Okapi Target File Creation for Epiroc
+REM TFC_axistype4.bat - Okapi Target File Creation for AXIS Type 4
 REM --------------------------------------------------------------------------------
 REM This script finalizes AXIS-based translations by:
 REM   1) Applying proofreading state, renaming locales
-REM   2) Creating final target files with custom Epiroc FPRM
+REM   2) Creating final target files with the AXIS Type 4 filter
 REM   3) Flatten/Unflatten operations to restore original folder structure
 REM ================================================================================
 title Okapi Target File Creation
@@ -37,13 +37,13 @@ echo.
 echo Creating Final file(s)...
 echo.
 
-REM Step 2: Use Epiroc parser from 03_configs\*.fprm
+REM Step 2: Use the AXIS Type 4 parser from 04_configs\*.fprm
 mkdir raw source
 call tikal.bat -m %original_path%\05_translated\*.xlf -sd 01_source -od raw -fc 04_configs\*.fprm -ie utf-8
 
 robocopy 01_source source *.* /NDL /NFL /NJH /NJS /NP >nul
 
-REM Step 3: Run custom Epiroc script(s) for .txt
+REM Step 3: Run the shared TXT post-processing script
 robocopy W:\Tools\ENGTools\Dependencies\python . epiroc_txt.py /NDL /NFL /NJH /NJS /NP >nul
 call python epiroc_txt.py
 del *.py

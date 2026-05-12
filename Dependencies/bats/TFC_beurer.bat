@@ -1,13 +1,13 @@
 @echo off
 REM ================================================================================
-REM TFC_daimler.bat - Okapi Target File Creation Daimler Multilingual
+REM TFC_beurer.bat - Okapi Target File Creation Beurer Multilingual
 REM --------------------------------------------------------------------------------
 REM This script finalizes translated files by:
 REM   1) Setting the translation state with proofread_state.py
 REM   2) Renaming locales with rename_platform_locales.py
 REM   3) Creating final target files using a custom Okapi filter (FPRM)
 REM ================================================================================
-title Okapi Target File Creation Daimler Multilingual
+title Okapi Target File Creation Beurer Multilingual
 setlocal
 color a
 cls

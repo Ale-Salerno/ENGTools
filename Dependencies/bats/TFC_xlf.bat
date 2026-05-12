@@ -1,6 +1,6 @@
 @echo off
 REM ================================================================================
-REM TFC_custom.bat - Okapi Target File Creation (Custom Parser)
+REM TFC_xlf.bat - Okapi Target File Creation (XLIFF SFP)
 REM --------------------------------------------------------------------------------
 REM This script finalizes translated files by:
 REM   1) Setting the translation state with proofread_state.py

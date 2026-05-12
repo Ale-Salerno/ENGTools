@@ -16,7 +16,7 @@ REM   - Various additional Tools (folder flattening, distribution, JSON/XPath
 REM     extraction, Regin .en file tasks)
 REM ----------------------------------------------------------------------------
 REM REQUIREMENTS:
-REM  - Java 17
+REM  - Java 21+
 REM  - Python 3.x
 REM  - Okapi Framework
 REM  - 7-Zip (for zip packaging)
@@ -32,6 +32,27 @@ REM Set environment variables for general usage
 REM ----------------------------------------------------------------------------
 set "original_path=%cd%"
 set "okapiPath=C:\Software\Okapi"
+
+if not exist "W:\Tools\ENGTools\Dependencies" (
+    echo [ERROR] W:\Tools\ENGTools is not available.
+    echo [ERROR] Run eng.bat first or reconnect the W: drive before launching ENGTools.
+    pause
+    goto CLOSE
+)
+
+if not exist "%okapiPath%\tikal.bat" (
+    echo [ERROR] Okapi was not found in "%okapiPath%".
+    echo [ERROR] Update the path in ENGTools.bat or install Okapi in the documented location.
+    pause
+    goto CLOSE
+)
+
+if not exist "C:\Program Files\7-Zip\7z.exe" (
+    echo [ERROR] 7-Zip was not found in "C:\Program Files\7-Zip\7z.exe".
+    echo [ERROR] Install 7-Zip in the default location before using packaging workflows.
+    pause
+    goto CLOSE
+)
 
 :WELCOME
 cls
@@ -105,7 +126,7 @@ echo   -------------------------------------------------------------------------
 echo   11. Confirm Segments SDLXLIFF
 echo   0. Back
 echo.
-set /p TASK="Enter your choice [0-10]: "
+set /p TASK="Enter your choice [0-11]: "
 
 if "%TASK%"=="" (
     echo [ERROR] No input provided. Please enter a valid number.
@@ -276,13 +297,13 @@ call "c:\Program Files\7-Zip\7z.exe" a "Prep.zip" .\Prep\*
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
-REM SFP - Custom
+REM SFP - XLIFF
 REM ----------------------------------------------------------------------------
 :XLIFFPREP
 cls
 color 0A
 echo ================================================================================
-echo =                    Okapi - XLIFF SPF                                         =
+echo =                    Okapi - XLIFF SFP                                         =
 echo ================================================================================
 echo.
 
@@ -428,6 +449,8 @@ echo ===========================================================================
 echo =                    Daimler Multilingual Proofreading                         =
 echo ================================================================================
 echo.
+echo [INFO] This specialized workflow currently assumes en ^> de bilingual output.
+echo.
 
 
 REM Create necessary folders
@@ -500,12 +523,14 @@ echo ===========================================================================
 echo =                             Epiroc TXT                                      =
 echo ================================================================================
 echo.
+echo [INFO] This specialized workflow currently assumes en ^> de bilingual output.
+echo.
 
 mkdir backup 2>nul
 mkdir Prep 2>nul
 
 REM Extract from ZIP to Prep folder
-call "c:\Program Files\7-Zip\7z.exe" x *.zip -o.\Prep\* -y
+call "c:\Program Files\7-Zip\7z.exe" x *.zip -o".\Prep\" -y
 MOVE *.zip backup
 
 REM Flatten folder
@@ -573,12 +598,14 @@ echo ===========================================================================
 echo =                             AXIS                                      =
 echo ================================================================================
 echo.
+echo [INFO] This specialized workflow currently assumes en ^> de bilingual output.
+echo.
 
 mkdir backup 2>nul
 mkdir Prep 2>nul
 
 REM Extract from ZIP to Prep folder
-call "c:\Program Files\7-Zip\7z.exe" x *.zip -o.\Prep\* -y
+call "c:\Program Files\7-Zip\7z.exe" x *.zip -o".\Prep\" -y
 MOVE *.zip backup
 
 REM Flatten folder
@@ -628,9 +655,9 @@ echo.
 echo Creating XLF files...
 call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -seg Prep\04_configs\*.srx -sl en -tl de -nocopy -fc Prep\04_configs\okf_regex@AxisType42.fprm -od Prep\02_transl -ie utf-8
 
-robocopy W:\Tools\ENGTools\Dependencies\python . escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
-call python escape_more_than.py
-del escape_more_than.py
+robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+call python Prep\02_transl\escape_more_than.py
+del Prep\02_transl\escape_more_than.py
 
 REM Pseudotranslation
 echo.
@@ -668,6 +695,8 @@ echo ===========================================================================
 echo =                    BEURER                                                    =
 echo ================================================================================
 echo.
+echo [INFO] This specialized workflow currently assumes de ^> en bilingual output.
+echo.
 
 
 REM Create necessary folders
@@ -702,7 +731,7 @@ robocopy W:\Tools\ENGTools\Segmentation\okapi Prep\04_configs defaultSegmentatio
 REM Create XLF files via Okapi with custom parser
 echo.
 echo Creating XLF files...
-call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -seg Prep\04_configs\*.srx -sl de -tl en -fc Prep\04_configs\okf_openxml@beurer.fprm -nocopy -seg -od Prep\02_transl -ie utf-8
+call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -seg Prep\04_configs\*.srx -sl de -tl en -fc Prep\04_configs\okf_openxml@beurer.fprm -nocopy -od Prep\02_transl -ie utf-8
 
 REM Run Python script escape_more_than.py
 robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
@@ -728,7 +757,7 @@ robocopy W:\Tools\ENGTools\Dependencies\python Prep\03_pseudo escape_more_than.p
 call python Prep\03_pseudo\escape_more_than.py
 del Prep\03_pseudo\*.py
 
-call "%okapiPath%\tikal.bat" -m Prep\03_pseudo\*.xlf -sd Prep\01_source -od Prep\03_pseudo -ie -ie utf-8 -fc Prep\04_configs\okf_openxml@beurer.fprm
+call "%okapiPath%\tikal.bat" -m Prep\03_pseudo\*.xlf -sd Prep\01_source -od Prep\03_pseudo -ie utf-8 -fc Prep\04_configs\okf_openxml@beurer.fprm
 
 rmdir split_files /s /q
 
@@ -966,7 +995,15 @@ echo =                       Resegment paragraph-based TMX                      
 echo ================================================================================
 echo Resegmenting TMX...
 call %okapiPath%\tikal.bat -x *.tmx -seg W:\Tools\ENGTools\Segmentation\okapi\defaultSegmentation.srx -ie utf-8
+if not exist "*.tmx.xlf" (
+    echo [ERROR] Okapi did not create any .tmx.xlf files to resegment.
+    goto ENDBAT
+)
 call "%okapiPath%\tikal.bat" -2tmx *.tmx.xlf -ie utf-8
+if not exist "*.tmx.xlf.tmx" (
+    echo [ERROR] Okapi did not create any sentence-segmented TMX output.
+    goto ENDBAT
+)
 del "%original_path%\*.tmx.xlf"
 cd /d "%original_path%"
 rename *.tmx.xlf.tmx by-sentence.tmx
@@ -994,7 +1031,7 @@ set /p TASK="Enter your choice [0-2]: "
 if "%TASK%"=="" (
     echo [ERROR] No input provided. Please enter a valid number.
     pause
-    goto REGIN
+    goto TRANSLATION
 )
 
 if "%TASK%"=="1" goto TRANSLATIONTWO
@@ -1003,7 +1040,7 @@ if "%TASK%"=="0" goto WELCOME
 
 echo [ERROR] Invalid option. Please try again.
 pause
-goto REGIN
+goto TRANSLATION
 
 :TRANSLATIONTWO
 cls
@@ -1018,45 +1055,45 @@ del *.py
 
 echo.
 echo Transferring German translations...
-call "%okapiPath%\tikal.bat" -t de-at_target.xlf -bi de-de_source.xlf
-call "%okapiPath%\tikal.bat" -t de-ch_target.xlf -bi de-de_source.xlf
+call :TRANSFER_PAIR "de-de_source.xlf" "de-at_target.xlf"
+call :TRANSFER_PAIR "de-de_source.xlf" "de-ch_target.xlf"
 
 echo.
 echo Transferring Spanish translations...
-call "%okapiPath%\tikal.bat" -t es-ar_target.xlf -bi es-es_source.xlf
-call "%okapiPath%\tikal.bat" -t es-co_target.xlf -bi es-es_source.xlf
-call "%okapiPath%\tikal.bat" -t es-cl_target.xlf -bi es-es_source.xlf
-call "%okapiPath%\tikal.bat" -t es-mx_target.xlf -bi es-es_source.xlf
-call "%okapiPath%\tikal.bat" -t es-us_target.xlf -bi es-es_source.xlf
-call "%okapiPath%\tikal.bat" -t es-pe_target.xlf -bi es-es_source.xlf
+call :TRANSFER_PAIR "es-es_source.xlf" "es-ar_target.xlf"
+call :TRANSFER_PAIR "es-es_source.xlf" "es-co_target.xlf"
+call :TRANSFER_PAIR "es-es_source.xlf" "es-cl_target.xlf"
+call :TRANSFER_PAIR "es-es_source.xlf" "es-mx_target.xlf"
+call :TRANSFER_PAIR "es-es_source.xlf" "es-us_target.xlf"
+call :TRANSFER_PAIR "es-es_source.xlf" "es-pe_target.xlf"
 
 echo.
 echo Transferring French translations...
-call "%okapiPath%\tikal.bat" -t fr-be_target.xlf -bi fr-fr_source.xlf
-call "%okapiPath%\tikal.bat" -t fr-ca_target.xlf -bi fr-fr_source.xlf
-call "%okapiPath%\tikal.bat" -t fr-ch_target.xlf -bi fr-fr_source.xlf
+call :TRANSFER_PAIR "fr-fr_source.xlf" "fr-be_target.xlf"
+call :TRANSFER_PAIR "fr-fr_source.xlf" "fr-ca_target.xlf"
+call :TRANSFER_PAIR "fr-fr_source.xlf" "fr-ch_target.xlf"
 
 echo.
 echo Transferring Italian translations...
-call "%okapiPath%\tikal.bat" -t it-ch_target.xlf -bi it-it_source.xlf
+call :TRANSFER_PAIR "it-it_source.xlf" "it-ch_target.xlf"
 
 echo.
 echo Transferring Dutch translations...
-call "%okapiPath%\tikal.bat" -t nl-be_target.xlf -bi nl-nl_source.xlf
+call :TRANSFER_PAIR "nl-nl_source.xlf" "nl-be_target.xlf"
 
 echo.
 echo Transferring Portuguese translations...
-call "%okapiPath%\tikal.bat" -t pt-pt_target.xlf -bi pt-br_source.xlf
+call :TRANSFER_PAIR "pt-br_source.xlf" "pt-pt_target.xlf"
 echo.
 
 echo.
 echo Transferring English translations...
-call "%okapiPath%\tikal.bat" -t en-029_target.xlf -bi en-gb_source.xlf
-call "%okapiPath%\tikal.bat" -t en-au_target.xlf -bi en-gb_source.xlf
-call "%okapiPath%\tikal.bat" -t en-bz_target.xlf -bi en-gb_source.xlf
-call "%okapiPath%\tikal.bat" -t en-ca_target.xlf -bi en-gb_source.xlf
-call "%okapiPath%\tikal.bat" -t en-jm_target.xlf -bi en-gb_source.xlf
-call "%okapiPath%\tikal.bat" -t en-in_target.xlf -bi en-gb_source.xlf
+call :TRANSFER_PAIR "en-gb_source.xlf" "en-029_target.xlf"
+call :TRANSFER_PAIR "en-gb_source.xlf" "en-au_target.xlf"
+call :TRANSFER_PAIR "en-gb_source.xlf" "en-bz_target.xlf"
+call :TRANSFER_PAIR "en-gb_source.xlf" "en-ca_target.xlf"
+call :TRANSFER_PAIR "en-gb_source.xlf" "en-jm_target.xlf"
+call :TRANSFER_PAIR "en-gb_source.xlf" "en-in_target.xlf"
 
 echo.
 echo Escaping special characters...
@@ -1064,10 +1101,10 @@ robocopy W:\Tools\ENGTools\Dependencies\python . escape_more_than.py /NDL /NFL /
 call python escape_more_than.py
 del *.py
 
-REM echo Keeping 100%% matches and above...
-REM robocopy W:\Tools\ENGTools\Dependencies\python . exact_match.py /NDL /NFL /NJH /NJS /NP >nul
-REM call python exact_match.py
-REM del *.py
+echo Keeping 100%% matches and above...
+robocopy W:\Tools\ENGTools\Dependencies\python . exact_match.py /NDL /NFL /NJH /NJS /NP >nul
+call python exact_match.py
+del *.py
 goto ENDBAT
 
 :TRANSLATIONMONO
@@ -1134,6 +1171,9 @@ echo   2. No
 echo.
 set /p TASK="Enter your choice [1-2]: "
 
+if not exist "C:\TMX" mkdir "C:\TMX"
+del /q "C:\TMX\alignment.tmx" 2>nul
+
 SET src_not_empty=0
 SET tgt_not_empty=0
 
@@ -1159,8 +1199,22 @@ cd /d "%okapiPath%"
 call "%okapiPath%\rainbow.exe" -pln W:\Tools\ENGTools\Pipelines\id_based_alignment.pln -sl %SLC% -tl %TLC% "%original_path%\src\*.*" "%original_path%\tgt\*.*" -np
 timeout /t 4 /nobreak >nul
 
-MOVE c:\TMX\* "%original_path%"
+if not exist "C:\TMX\alignment.tmx" (
+    echo [ERROR] Alignment TMX was not generated in C:\TMX.
+    echo [ERROR] Check Rainbow output and confirm the configured pipeline can write to C:\TMX.
+    goto ENDBAT
+)
+
+MOVE "C:\TMX\*" "%original_path%" >nul
+if not exist "%original_path%\alignment.tmx" (
+    echo [ERROR] alignment.tmx could not be moved to "%original_path%".
+    goto ENDBAT
+)
 call "C:\Program Files\Analysis Package\bin\TmxSplitAll.cmd" "%original_path%\alignment.tmx" -f W:\Tools\ENGTools\Dependencies\ap\tmxtexttotag.properties
+if not exist "%original_path%\alignment-fixed.tmx" (
+    echo [ERROR] GLAP did not create alignment-fixed.tmx.
+    goto ENDBAT
+)
 del "%original_path%\alignment.tmx"
 
 if "%TASK%"=="1" goto SEGMENTTMX
@@ -1172,6 +1226,10 @@ goto NOSEGMENTTMX
 :SEGMENTTMX
 call "%okapiPath%\tikal.bat" -x "%original_path%\alignment-fixed.tmx" -seg W:\Tools\ENGTools\Segmentation\okapi\defaultSegmentation.srx -ie utf-8
 call "%okapiPath%\tikal.bat" -2tmx "%original_path%\alignment-fixed.tmx.xlf" -ie utf-8
+if not exist "%original_path%\alignment-fixed.tmx.xlf.tmx" (
+    echo [ERROR] Sentence-segmented TMX was not created.
+    goto ENDBAT
+)
 del "%original_path%\alignment-fixed.tmx"
 del "%original_path%\alignment-fixed.tmx.xlf"
 cd /d "%original_path%"
@@ -1366,7 +1424,7 @@ echo   11. Append folder name to files
 echo   -------------------------------------------------------------------------------
 echo   0. Back
 echo.
-set /p TASK="Enter your choice [0-10]: "
+set /p TASK="Enter your choice [0-11]: "
 
 if "%TASK%"=="" (
     echo [ERROR] No input provided. Please enter a valid number.
@@ -1578,7 +1636,7 @@ goto ENDBAT
 REM ----------------------------------------------------------------------------
 REM Web-crawling
 REM ----------------------------------------------------------------------------
-:WEBCRAWLING
+:EXTRACTPDF
 cls
 color 0D
 echo ================================================================================
@@ -1676,6 +1734,21 @@ echo Press any key to exit. This batch file will self-delete.
 pause >nul
 del "%~f0" & exit
 
+:TRANSFER_PAIR
+if not exist "%~1" (
+    echo [WARN] Source bilingual file "%~1" was not found. Skipping "%~2".
+    exit /b 0
+)
+if not exist "%~2" (
+    echo [WARN] Target file "%~2" was not found. Skipping transfer.
+    exit /b 0
+)
+call "%okapiPath%\tikal.bat" -t "%~2" -bi "%~1"
+if errorlevel 1 (
+    echo [WARN] Okapi transfer failed for "%~2".
+)
+exit /b 0
+
 REM ----------------------------------------------------------------------------
 REM CLOSE
 REM ----------------------------------------------------------------------------
@@ -1692,4 +1765,4 @@ echo     vipa@languagewire.com
 echo.
 echo Press any key to exit. This batch file will self-delete.
 pause >nul
-exit
+del "%~f0" & exit
