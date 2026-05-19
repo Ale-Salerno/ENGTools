@@ -16,10 +16,13 @@
 - Access to the `W:` drive used by `eng.bat`
 
 ### Python modules
-Install the packages from `/home/runner/work/ENGTools/ENGTools/Dependencies/python/requirements.txt`.
+Install the packages from `Dependencies/python/requirements.txt`.
 
 ### Office automation
-Word/Excel-based tools require Microsoft Office installed locally.
+Word/Excel-based tools require Microsoft Office installed locally (COM automation via `pywin32`). This includes:
+- Batch update TOCs, Batch unhide/rename Word files, Anonymize track changes (require Word)
+- Batch unhide/rename Excel files, Split/Merge multilingual `.xlsx` (require Excel)
+- **Beurer SFP and TFC** — split and merge steps both require Excel COM automation
 
 ## Downloads
 - Okapi latest build
@@ -79,7 +82,23 @@ Word/Excel-based tools require Microsoft Office installed locally.
 
 ## Operational Notes
 - Translation 2.0 now runs the exact-match preservation step again.
-- The Split/Merge multilingual `.xlsx` workflow is an Excel split/merge utility, not a Word color-hiding tool.
+- The Split/Merge multilingual `.xlsx` workflow is an Excel split/merge utility (splits a multilingual Excel into per-language bilingual files and merges them back), not a Word color-hiding tool.
 - Daimler, Epiroc, AXIS Type 4, and Beurer remain specialized flows with hardcoded language assumptions that should be reviewed before wider reuse.
 - Scholly assets are present in the repository but are still manual-only and should be reviewed by a human before being exposed in the main menu.
-- Alignment still depends on `C:\TMX`, Rainbow, and GLAP behavior in the local Windows environment.
+- Alignment still depends on `C:\TMX`, Rainbow, and GLAP behavior in the local Windows environment. The `engRootPath` variable in `ENGTools.bat` controls where the pipeline file is read from; update it if running from a local checkout instead of the W: drive deployment.
+
+## Scripts Not Exposed in the Main Menu
+The following Python scripts exist in `Dependencies/python/` but are not directly accessible via the ENGTools main menu:
+
+| Script | Status |
+|---|---|
+| `beurer_merge.py` | Called by `TFC_beurer.bat` during the Beurer target file creation step |
+| `daimler_merge_multilingual_excel.py` | Called by `TFC_daimler.bat` during the Daimler target file creation step |
+| `prep_qa_merge_json.py` | Orphaned — no menu entry or bat references it |
+| `Atlas-OLD.py` | Superseded by `Atlas.py`; kept for reference only |
+| `unhide_rename_word.py` | Orphaned — functionality covered by `unhide_rename_docx.py` |
+| `scholly_csv2json.py` | Scholly suite — manual-only, not yet wired into the menu |
+| `scholly_json2tmx.py` | Scholly suite — manual-only |
+| `scholly_merge.py` | Scholly suite — manual-only |
+| `scholly_prep.py` | Scholly suite — manual-only |
+| `scholly_qa.py` | Scholly suite — manual-only |

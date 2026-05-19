@@ -32,10 +32,12 @@ REM Set environment variables for general usage
 REM ----------------------------------------------------------------------------
 set "original_path=%cd%"
 set "okapiPath=C:\Software\Okapi"
+set "engRootPath=W:\Tools\ENGTools"
 
 if not exist "W:\Tools\ENGTools\Dependencies" (
     echo [ERROR] W:\Tools\ENGTools is not available.
     echo [ERROR] Run eng.bat first or reconnect the W: drive before launching ENGTools.
+    echo [ERROR] If running from a local checkout, update engRootPath at the top of this bat.
     pause
     goto CLOSE
 )
@@ -696,6 +698,7 @@ echo =                    BEURER                                                
 echo ================================================================================
 echo.
 echo [INFO] This specialized workflow currently assumes de ^> en bilingual output.
+echo [INFO] Requires Microsoft Office (Excel) installed locally — uses COM automation via pywin32.
 echo.
 
 
@@ -1196,7 +1199,7 @@ pause
 
 :skip_to_okapi
 cd /d "%okapiPath%"
-call "%okapiPath%\rainbow.exe" -pln W:\Tools\ENGTools\Pipelines\id_based_alignment.pln -sl %SLC% -tl %TLC% "%original_path%\src\*.*" "%original_path%\tgt\*.*" -np
+call "%okapiPath%\rainbow.exe" -pln "%engRootPath%\Pipelines\id_based_alignment.pln" -sl %SLC% -tl %TLC% "%original_path%\src\*.*" "%original_path%\tgt\*.*" -np
 timeout /t 4 /nobreak >nul
 
 if not exist "C:\TMX\alignment.tmx" (
