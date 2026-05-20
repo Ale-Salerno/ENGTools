@@ -43,18 +43,13 @@ if not exist "%configPath%" (
 set "okapiPath="
 set "engRootPath="
 set "sevenzipPath="
-set "pathsTmp=%temp%\engtools_paths_%random%.tmp"
-python -c "import tomllib; c=tomllib.load(open(r'%configPath%','rb')); p=c['paths']; print('okapiPath='+p['okapi']); print('engRootPath='+p['eng_root']); print('sevenzipPath='+p['sevenzip'])" > "%pathsTmp%"
+for /f "tokens=1,* delims==" %%A in ('python -c "import tomllib; c=tomllib.load(open(r'%configPath%','rb')); p=c['paths']; print('okapiPath='+p['okapi']); print('engRootPath='+p['eng_root']); print('sevenzipPath='+p['sevenzip'])"') do set "%%A=%%B"
 if errorlevel 1 (
-    del "%pathsTmp%" >nul 2>&1
     echo [ERROR] Failed to read path settings from "%configPath%".
-    echo [ERROR] Make sure config.toml is valid and Python 3.11+ is available (tomllib required).
+    echo [ERROR] Check Python 3.11+ availability, TOML syntax, and required keys under [paths].
     pause
     goto CLOSE
 )
-
-for /f "usebackq tokens=1,* delims==" %%A in ("%pathsTmp%") do set "%%A=%%B"
-del "%pathsTmp%" >nul 2>&1
 
 set "okapiPath=%okapiPath:/=\%"
 set "engRootPath=%engRootPath:/=\%"
