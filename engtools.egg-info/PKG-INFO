@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: engtools
+Version: 0.3.0
+Summary: LanguageWire Engineering toolbox — Python CLI
+Requires-Python: >=3.9
+Requires-Dist: click>=8.0
+Requires-Dist: tomli>=2.0; python_version < "3.11"

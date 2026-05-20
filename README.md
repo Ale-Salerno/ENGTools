@@ -96,6 +96,42 @@ The Microsoft Office workflows, Beurer split/merge flow, and some rename/unhide 
 ### 7. File Format Conversions
 - SRT to/from VTT
 
+## Python CLI
+
+ENGTools includes a `click`-based CLI that mirrors the top-level menu of `ENGTools.bat`.
+
+### Installation
+
+```bash
+pip install -e .
+```
+
+### Usage
+
+```bash
+engtools --help
+engtools sfp --help
+engtools sfp standard --sl en --tl de
+engtools tm xlf-to-tmx --sl en --tl de
+engtools translation translation-2
+engtools alignment id-based
+engtools office update-toc
+engtools tools flatten
+```
+
+Available command groups:
+
+| Group | Subcommands |
+|---|---|
+| `sfp` | `standard`, `custom`, `xliff`, `proofreading`, `pretranslate`, `daimler`, `epiroc`, `axis`, `beurer`, `edwards`, `confirm-sdlxliff` |
+| `tm` | `xlf-to-tmx`, `xlf-to-table`, `cleanup`, `excel-to-tmx`, `resegment`, `split-multilingual` |
+| `translation` | `standard`, `translation-2` |
+| `alignment` | `id-based` |
+| `office` | `update-toc`, `unhide-docx`, `hide-color`, `anonymize`, `unhide-xlsx`, `split-xlsx` |
+| `tools` | `flatten`, `unflatten`, `distribute`, `json-paths`, `xpath`, `remove-locales`, `regin`, `maxlen`, `delete-column-csv`, `webcrawl`, `pdf-comments`, `append-folder`, `srt-vtt` |
+
+> **Note:** All subcommands are currently stubs — they print a "not yet implemented" message and exit cleanly. Full implementations will replace `ENGTools.bat` workflows progressively.
+
 ## CI
 
 GitHub Actions runs automatically on every push and pull request. The workflow (`.github/workflows/ci.yml`) includes three jobs:
