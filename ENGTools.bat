@@ -51,10 +51,6 @@ if errorlevel 1 (
     goto CLOSE
 )
 
-set "okapiPath=%okapiPath:/=\%"
-set "engRootPath=%engRootPath:/=\%"
-set "sevenzipPath=%sevenzipPath:/=\%"
-
 if "%okapiPath%"=="" (
     echo [ERROR] Could not read paths.okapi from "%configPath%".
     pause
@@ -72,6 +68,10 @@ if "%sevenzipPath%"=="" (
     pause
     goto CLOSE
 )
+
+set "okapiPath=%okapiPath:/=\%"
+set "engRootPath=%engRootPath:/=\%"
+set "sevenzipPath=%sevenzipPath:/=\%"
 
 if not exist "%engRootPath%\Dependencies" (
     echo [ERROR] ENG root path is not available: "%engRootPath%".

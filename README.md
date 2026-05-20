@@ -8,7 +8,7 @@
 - Windows workstation
 - VPN access if you are outside the office
 - Java 21+
-- `config.toml` in the repository root (paths for Okapi, ENG root and 7-Zip)
+- `config.toml` in the repository root is provided with default values (paths for Okapi, ENG root and 7-Zip)
 - Edit `config.toml` before first run so it matches your local machine/network mapping
 - Okapi installed in the path configured in `config.toml` (`paths.okapi`)
 - `eng.bat` available in the Okapi path configured in `config.toml`
