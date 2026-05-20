@@ -8,12 +8,13 @@
 - Windows workstation
 - VPN access if you are outside the office
 - Java 21+
-- Okapi installed in `C:\Software\Okapi`
-- `C:\Software\Okapi` added to `PATH`
-- `eng.bat` available in `C:\Software\Okapi`
+- `config.toml` in the repository root (paths for Okapi, ENG root and 7-Zip)
+- Edit `config.toml` before first run so it matches your local machine/network mapping
+- Okapi installed in the path configured in `config.toml` (`paths.okapi`)
+- `eng.bat` available in the Okapi path configured in `config.toml`
 - GLAP installed in `C:\Program Files\Analysis Package`
-- 7-Zip installed in `C:\Program Files\7-Zip`
-- Access to the `W:` network drive used by `eng.bat`
+- 7-Zip installed in the path configured in `config.toml` (`paths.sevenzip`)
+- Access to the ENG root path configured in `config.toml` (`paths.eng_root`)
 
 ### Python
 Install the modules in `/home/runner/work/ENGTools/ENGTools/Dependencies/python/requirements.txt`, or at minimum:

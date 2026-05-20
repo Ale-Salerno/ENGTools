@@ -20,7 +20,7 @@ REM  - Java 21+
 REM  - Python 3.x
 REM  - Okapi Framework
 REM  - 7-Zip (for zip packaging)
-REM  - Access to W:\Tools\ENGTools folder structure (or modify paths as needed)
+REM  - Access to the configured ENG root folder structure (or modify paths as needed)
 REM ----------------------------------------------------------------------------
 REM NOTE: This file self-deletes on normal exit to avoid accidental reuse.
 REM ============================================================================
@@ -31,27 +31,59 @@ REM ----------------------------------------------------------------------------
 REM Set environment variables for general usage
 REM ----------------------------------------------------------------------------
 set "original_path=%cd%"
-set "okapiPath=C:\Software\Okapi"
-set "engRootPath=W:\Tools\ENGTools"
+set "configPath=%~dp0config.toml"
 
-if not exist "W:\Tools\ENGTools\Dependencies" (
-    echo [ERROR] W:\Tools\ENGTools is not available.
-    echo [ERROR] Run eng.bat first or reconnect the W: drive before launching ENGTools.
-    echo [ERROR] If running from a local checkout, update engRootPath at the top of this bat.
+if not exist "%configPath%" (
+    echo [ERROR] Configuration file not found: "%configPath%".
+    echo [ERROR] Copy or create config.toml in the ENGTools root before launching.
+    pause
+    goto CLOSE
+)
+
+for /f "delims=" %%i in ('python -c "import tomllib; c=tomllib.load(open(r'%configPath%','rb')); print(c['paths']['okapi'])"') do set "okapiPath=%%i"
+for /f "delims=" %%i in ('python -c "import tomllib; c=tomllib.load(open(r'%configPath%','rb')); print(c['paths']['eng_root'])"') do set "engRootPath=%%i"
+for /f "delims=" %%i in ('python -c "import tomllib; c=tomllib.load(open(r'%configPath%','rb')); print(c['paths']['sevenzip'])"') do set "sevenzipPath=%%i"
+
+set "okapiPath=%okapiPath:/=\%"
+set "engRootPath=%engRootPath:/=\%"
+set "sevenzipPath=%sevenzipPath:/=\%"
+
+if "%okapiPath%"=="" (
+    echo [ERROR] Could not read paths.okapi from "%configPath%".
+    pause
+    goto CLOSE
+)
+
+if "%engRootPath%"=="" (
+    echo [ERROR] Could not read paths.eng_root from "%configPath%".
+    pause
+    goto CLOSE
+)
+
+if "%sevenzipPath%"=="" (
+    echo [ERROR] Could not read paths.sevenzip from "%configPath%".
+    pause
+    goto CLOSE
+)
+
+if not exist "%engRootPath%\Dependencies" (
+    echo [ERROR] ENG root path is not available: "%engRootPath%".
+    echo [ERROR] Run eng.bat first or reconnect the mapped drive before launching ENGTools.
+    echo [ERROR] Update paths.eng_root in config.toml if needed.
     pause
     goto CLOSE
 )
 
 if not exist "%okapiPath%\tikal.bat" (
     echo [ERROR] Okapi was not found in "%okapiPath%".
-    echo [ERROR] Update the path in ENGTools.bat or install Okapi in the documented location.
+    echo [ERROR] Update paths.okapi in config.toml or install Okapi in the documented location.
     pause
     goto CLOSE
 )
 
-if not exist "C:\Program Files\7-Zip\7z.exe" (
-    echo [ERROR] 7-Zip was not found in "C:\Program Files\7-Zip\7z.exe".
-    echo [ERROR] Install 7-Zip in the default location before using packaging workflows.
+if not exist "%sevenzipPath%" (
+    echo [ERROR] 7-Zip was not found in "%sevenzipPath%".
+    echo [ERROR] Update paths.sevenzip in config.toml or install 7-Zip before using packaging workflows.
     pause
     goto CLOSE
 )
@@ -181,9 +213,9 @@ REM Copy files and filter definitions
 echo.
 echo Copying required files...
 robocopy . Prep\01_source *.* /XF *.bat /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Pipelines Prep\04_configs pseudo.pln /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\bats Prep TFC.bat /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Pipelines Prep\04_configs pseudo.pln /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\bats Prep TFC.bat /NDL /NFL /NJH /NJS /NP >nul
 
 REM Create XLF files via Okapi
 echo.
@@ -191,7 +223,7 @@ echo Creating XLF files...
 call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -seg Prep\04_configs\*.srx -sl %SLC% -tl %TLC% -nocopy -od Prep\02_transl -ie utf-8
 
 REM Run Python script escape_more_than.py
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\02_transl\escape_more_than.py
 del Prep\02_transl\*.py
 
@@ -204,13 +236,13 @@ robocopy Prep\02_transl Prep\03_pseudo *.xlf /NDL /NFL /NJH /NJS /NP >nul
 
 cd /d Prep\03_pseudo
 
-robocopy W:\Tools\ENGTools\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
 call python pseudo.py
 del *.py
 
 cd /d %original_path%
 
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\03_pseudo escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\03_pseudo escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\03_pseudo\escape_more_than.py
 del Prep\03_pseudo\*.py
 
@@ -219,7 +251,7 @@ call "%okapiPath%\tikal.bat" -m Prep\03_pseudo\*.xlf -sd Prep\01_source -od Prep
 REM Create zip package
 echo.
 echo Creating zip package (Prep.zip)...
-call "c:\Program Files\7-Zip\7z.exe" a "Prep.zip" .\Prep\*
+call "%sevenzipPath%" a "Prep.zip" .\Prep\*
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
@@ -255,9 +287,9 @@ REM Copy base files
 echo.
 echo Copying required files...
 robocopy . Prep\01_source *.* /XF *.bat *.fprm /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Pipelines Prep\04_configs pseudo.pln /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\bats Prep TFC_custom.bat /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Pipelines Prep\04_configs pseudo.pln /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\bats Prep TFC_custom.bat /NDL /NFL /NJH /NJS /NP >nul
 
 REM Create XLF files via Okapi with custom parser
 echo.
@@ -265,7 +297,7 @@ echo Creating XLF files...
 call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -seg Prep\04_configs\*.srx -fc Prep\04_configs\*.fprm -sl %SLC% -tl %TLC% -nocopy -od Prep\02_transl -ie utf-8
 
 REM Escape special characters
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\02_transl\escape_more_than.py
 del Prep\02_transl\*.py
 
@@ -279,13 +311,13 @@ robocopy Prep\02_transl Prep\03_pseudo *.xlf /NDL /NFL /NJH /NJS /NP >nul
 
 cd /d Prep\03_pseudo
 
-robocopy W:\Tools\ENGTools\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
 call python pseudo.py
 del *.py
 
 cd /d %original_path%
 
-robocopy W:\Tools\ENGTools\Dependencies\python "%original_path%\Prep\03_pseudo" escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python "%original_path%\Prep\03_pseudo" escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python "%original_path%\Prep\03_pseudo\escape_more_than.py"
 del "%original_path%\Prep\03_pseudo\*.py"
 
@@ -295,7 +327,7 @@ call "%okapiPath%\tikal.bat" -m Prep\03_pseudo\*.xlf -sd Prep\01_source -od Prep
 REM Create zip package
 echo.
 echo Creating zip package (Prep.zip)...
-call "c:\Program Files\7-Zip\7z.exe" a "Prep.zip" .\Prep\*
+call "%sevenzipPath%" a "Prep.zip" .\Prep\*
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
@@ -326,9 +358,9 @@ REM Copy base files
 echo.
 echo Copying required files...
 robocopy . Prep\01_source *.* /XF *.bat *.fprm /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Parsers\okapi Prep\04_configs okf_xliff@XLIFF-with-placeholder.fprm /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\bats Prep TFC_xlf.bat /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Parsers\okapi Prep\04_configs okf_xliff@XLIFF-with-placeholder.fprm /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\bats Prep TFC_xlf.bat /NDL /NFL /NJH /NJS /NP >nul
 
 echo.
 echo Please check your custom parser before proceeding, then press any key.
@@ -351,7 +383,7 @@ robocopy Prep\02_transl Prep\03_pseudo *.xlf /NDL /NFL /NJH /NJS /NP >nul
 
 cd /d Prep\03_pseudo
 
-robocopy W:\Tools\ENGTools\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
 call python pseudo.py
 del *.py
 
@@ -362,7 +394,7 @@ call "%okapiPath%\tikal.bat" -m Prep\03_pseudo\*.xlf -sd Prep\01_source -od Prep
 REM Create zip package
 echo.
 echo Creating zip package (Prep.zip)...
-call "c:\Program Files\7-Zip\7z.exe" a "Prep.zip" .\Prep\*
+call "%sevenzipPath%" a "Prep.zip" .\Prep\*
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
@@ -391,28 +423,28 @@ REM Copy essential files
 echo.
 echo Copying required files...
 robocopy . Prep\01_source *.* /XF *.bat /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\bats Prep TFC_proof.bat /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\bats Prep TFC_proof.bat /NDL /NFL /NJH /NJS /NP >nul
 
 REM Create XLF files
 echo.
 echo Creating XLF files...
 call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -sl %SLC% -tl %TLC% -nocopy -od Prep\02_transl -ie utf-8
 
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\02_transl\escape_more_than.py
 del Prep\02_transl\*.py
 
 REM Run proofread_state.py to set translation state
 echo.
 echo Setting state to "translated"...
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl proofread_state.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\02_transl proofread_state.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\02_transl\proofread_state.py Prep\02_transl
 del Prep\02_transl\*.py
 
 REM Create zip package
 echo.
 echo Creating zip package (Prep.zip)...
-call "c:\Program Files\7-Zip\7z.exe" a "Prep.zip" .\Prep\*
+call "%sevenzipPath%" a "Prep.zip" .\Prep\*
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
@@ -458,7 +490,7 @@ echo.
 REM Create necessary folders
 echo.
 echo Splitting xlsx files into bilingual files...
-robocopy W:\Tools\ENGTools\Dependencies\python . daimler_split.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . daimler_split.py /NDL /NFL /NJH /NJS /NP >nul
 call python daimler_split.py
 del *.py
 
@@ -477,8 +509,8 @@ move "original_metadata" "Prep\"
 REM Copy base files
 echo.
 echo Copying required files...
-robocopy W:\Tools\ENGTools\Parsers\okapi Prep\03_configs okf_openxml@daimler_multilingual.fprm /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\bats Prep TFC_daimler.bat /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Parsers\okapi Prep\03_configs okf_openxml@daimler_multilingual.fprm /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\bats Prep TFC_daimler.bat /NDL /NFL /NJH /NJS /NP >nul
 
 REM Create XLF files via Okapi with custom parser
 echo.
@@ -486,20 +518,20 @@ echo Creating XLF files...
 call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -fc Prep\03_configs\*.fprm -sl en -tl de -nocopy -od Prep\02_transl -ie utf-8
 
 REM Escape special characters
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\02_transl\escape_more_than.py
 del Prep\02_transl\*.py
 
 REM Run proofread_state.py to set translation state
 echo.
 echo Setting state to "translated"...
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl proofread_state.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\02_transl proofread_state.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\02_transl\proofread_state.py Prep\02_transl
 del Prep\02_transl\*.py
 
 REM Distribute by TLC
 cd /d Prep\02_transl
-robocopy W:\Tools\ENGTools\Dependencies\python .  distribute_TLC.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python .  distribute_TLC.py /NDL /NFL /NJH /NJS /NP >nul
 call python distribute_TLC.py
 del *.py
 
@@ -507,12 +539,12 @@ cd /d %original_path%
 
 rmdir split_files /s /q
 
-call "c:\Program Files\7-Zip\7z.exe" a -tzip "del.zip" .\Prep\02_transl\* -r
+call "%sevenzipPath%" a -tzip "del.zip" .\Prep\02_transl\* -r
 
 REM Create zip package
 echo.
 echo Creating zip package (Prep.zip)...
-call "c:\Program Files\7-Zip\7z.exe" a "Prep.zip" .\Prep\*
+call "%sevenzipPath%" a "Prep.zip" .\Prep\*
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
@@ -532,11 +564,11 @@ mkdir backup 2>nul
 mkdir Prep 2>nul
 
 REM Extract from ZIP to Prep folder
-call "c:\Program Files\7-Zip\7z.exe" x *.zip -o".\Prep\" -y
+call "%sevenzipPath%" x *.zip -o".\Prep\" -y
 MOVE *.zip backup
 
 REM Flatten folder
-robocopy W:\Tools\ENGTools\Dependencies\python .\Prep flatten_folder_structure.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python .\Prep flatten_folder_structure.py /NDL /NFL /NJH /NJS /NP >nul
 cd /d Prep
 call python flatten_folder_structure.py
 del *.py
@@ -564,9 +596,9 @@ echo.
 echo Copying required files...
 MOVE "%original_path%\Prep\FLATTEN\*.*" "%original_path%\Prep\01_source"
 robocopy . Prep\01_source *.* /XF *.bat /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Segmentation\okapi Prep\03_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\bats Prep TFC_epiroc.bat /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Parsers\okapi Prep\03_configs okf_regex@epiroc_txt.fprm /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Segmentation\okapi Prep\03_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\bats Prep TFC_epiroc.bat /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Parsers\okapi Prep\03_configs okf_regex@epiroc_txt.fprm /NDL /NFL /NJH /NJS /NP >nul
 
 REM Create XLF with Epiroc parser
 echo.
@@ -574,11 +606,11 @@ echo Creating XLF files...
 call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -seg Prep\03_configs\*.srx -sl en -tl de -nocopy -fc Prep\03_configs\okf_regex@epiroc_txt.fprm -od Prep\02_transl -ie utf-8
 
 cd /d Prep\02_transl
-robocopy W:\Tools\ENGTools\Dependencies\python . remove_empty_xlf.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . remove_empty_xlf.py /NDL /NFL /NJH /NJS /NP >nul
 call python remove_empty_xlf.py
 del *.py
 
-robocopy W:\Tools\ENGTools\Dependencies\python . escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python escape_more_than.py
 del escape_more_than.py
 
@@ -587,7 +619,7 @@ rmdir /s /q Prep\FLATTEN
 
 echo.
 echo Creating zip package (Prep.zip)...
-call "c:\Program Files\7-Zip\7z.exe" a "Prep.zip" .\Prep\*
+call "%sevenzipPath%" a "Prep.zip" .\Prep\*
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
@@ -607,11 +639,11 @@ mkdir backup 2>nul
 mkdir Prep 2>nul
 
 REM Extract from ZIP to Prep folder
-call "c:\Program Files\7-Zip\7z.exe" x *.zip -o".\Prep\" -y
+call "%sevenzipPath%" x *.zip -o".\Prep\" -y
 MOVE *.zip backup
 
 REM Flatten folder
-robocopy W:\Tools\ENGTools\Dependencies\python .\Prep flatten_folder_structure.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python .\Prep flatten_folder_structure.py /NDL /NFL /NJH /NJS /NP >nul
 cd /d Prep
 call python flatten_folder_structure.py
 del *.py
@@ -640,13 +672,13 @@ echo.
 echo Copying required files...
 MOVE "%original_path%\Prep\FLATTEN\*.*" "%original_path%\Prep\01_source"
 robocopy . Prep\01_source *.* /XF *.bat /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\bats Prep TFC_axistype4.bat /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Parsers\okapi Prep\04_configs okf_regex@AxisType42.fprm /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\bats Prep TFC_axistype4.bat /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Parsers\okapi Prep\04_configs okf_regex@AxisType42.fprm /NDL /NFL /NJH /NJS /NP >nul
 
 cd /d Prep\01_source
 
-robocopy W:\Tools\ENGTools\Dependencies\python . comillas_true.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . comillas_true.py /NDL /NFL /NJH /NJS /NP >nul
 call python comillas_true.py
 del *.py
 
@@ -657,7 +689,7 @@ echo.
 echo Creating XLF files...
 call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -seg Prep\04_configs\*.srx -sl en -tl de -nocopy -fc Prep\04_configs\okf_regex@AxisType42.fprm -od Prep\02_transl -ie utf-8
 
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\02_transl\escape_more_than.py
 del Prep\02_transl\escape_more_than.py
 
@@ -671,7 +703,7 @@ robocopy Prep\02_transl Prep\03_pseudo *.xlf /NDL /NFL /NJH /NJS /NP >nul
 
 cd /d Prep\03_pseudo
 
-robocopy W:\Tools\ENGTools\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
 call python pseudo.py
 del *.py
 
@@ -684,7 +716,7 @@ rmdir /s /q Prep\FLATTEN
 
 echo.
 echo Creating zip package (Prep.zip)...
-call "c:\Program Files\7-Zip\7z.exe" a "Prep.zip" .\Prep\*
+call "%sevenzipPath%" a "Prep.zip" .\Prep\*
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
@@ -705,7 +737,7 @@ echo.
 REM Create necessary folders
 echo.
 echo Splitting xlsx files into bilingual files...
-robocopy W:\Tools\ENGTools\Dependencies\python . beurer_split.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . beurer_split.py /NDL /NFL /NJH /NJS /NP >nul
 call python beurer_split.py
 del *.py
 
@@ -725,9 +757,9 @@ move "original_metadata" "Prep\"
 REM Copy base files
 echo.
 echo Copying required files...
-robocopy W:\Tools\ENGTools\Parsers\okapi Prep\04_configs okf_openxml@beurer.fprm /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\bats Prep TFC_beurer.bat /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Parsers\okapi Prep\04_configs okf_openxml@beurer.fprm /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\bats Prep TFC_beurer.bat /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Segmentation\okapi Prep\04_configs defaultSegmentation.srx /NDL /NFL /NJH /NJS /NP >nul
 
 
 
@@ -737,7 +769,7 @@ echo Creating XLF files...
 call "%okapiPath%\tikal.bat" -x Prep\01_source\*.* -seg Prep\04_configs\*.srx -sl de -tl en -fc Prep\04_configs\okf_openxml@beurer.fprm -nocopy -od Prep\02_transl -ie utf-8
 
 REM Run Python script escape_more_than.py
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\02_transl escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\02_transl\escape_more_than.py
 del Prep\02_transl\*.py
 
@@ -750,13 +782,13 @@ robocopy Prep\02_transl Prep\03_pseudo *.xlf /NDL /NFL /NJH /NJS /NP >nul
 
 cd /d Prep\03_pseudo
 
-robocopy W:\Tools\ENGTools\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . pseudo.py /NDL /NFL /NJH /NJS /NP >nul
 call python pseudo.py
 del *.py
 
 cd /d %original_path%
 
-robocopy W:\Tools\ENGTools\Dependencies\python Prep\03_pseudo escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python Prep\03_pseudo escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python Prep\03_pseudo\escape_more_than.py
 del Prep\03_pseudo\*.py
 
@@ -767,7 +799,7 @@ rmdir split_files /s /q
 REM Create zip package
 echo.
 echo Creating zip package (Prep.zip)...
-call "c:\Program Files\7-Zip\7z.exe" a "Prep.zip" .\Prep\*
+call "%sevenzipPath%" a "Prep.zip" .\Prep\*
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
@@ -813,8 +845,8 @@ echo ===========================================================================
 REM Copy base files
 echo.
 echo Copying required files...
-robocopy W:\Tools\ENGTools\Dependencies\mappings . mapping_Edwards.xlsx /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\python . Edwards.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\mappings . mapping_Edwards.xlsx /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . Edwards.py /NDL /NFL /NJH /NJS /NP >nul
 
 REM Running Python script
 call python Edwards.py
@@ -832,8 +864,8 @@ echo ===========================================================================
 REM Copy base files
 echo.
 echo Copying required files...
-robocopy W:\Tools\ENGTools\Dependencies\mappings . mapping_Leybold.xlsx /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\python . Leybold.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\mappings . mapping_Leybold.xlsx /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . Leybold.py /NDL /NFL /NJH /NJS /NP >nul
 
 REM Running Python script
 call python Leybold.py
@@ -851,8 +883,8 @@ echo ===========================================================================
 REM Copy base files
 echo.
 echo Copying required files...
-robocopy W:\Tools\ENGTools\Dependencies\mappings . mapping_Atlas.xlsx /NDL /NFL /NJH /NJS /NP >nul
-robocopy W:\Tools\ENGTools\Dependencies\python . Atlas.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\mappings . mapping_Atlas.xlsx /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . Atlas.py /NDL /NFL /NJH /NJS /NP >nul
 
 REM Running Python script
 call python Atlas.py
@@ -871,7 +903,7 @@ echo ===========================================================================
 echo =                             Confirm Segments SDLXLIFF                        =
 echo ================================================================================
 echo.
-robocopy W:\Tools\ENGTools\Dependencies\python . sdlxliff_translate_state.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . sdlxliff_translate_state.py /NDL /NFL /NJH /NJS /NP >nul
 call python sdlxliff_translate_state.py
 del *.py
 goto ENDBAT
@@ -923,10 +955,10 @@ echo ===========================================================================
 echo =                         XLF and flavours to TMX                              =
 echo ================================================================================
 echo Converting files...
-call "%okapiPath%\tikal.bat" -2tmx *.*xl* -fc W:\Tools\ENGTools\Parsers\okapi\okf_xliff@xlf2tmx.fprm -ie utf-8
+call "%okapiPath%\tikal.bat" -2tmx *.*xl* -fc %engRootPath%\Parsers\okapi\okf_xliff@xlf2tmx.fprm -ie utf-8
 
 echo Cleaning up TMX file(s)...
-robocopy W:\Tools\ENGTools\Dependencies\python . cleanprops.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . cleanprops.py /NDL /NFL /NJH /NJS /NP >nul
 call python cleanprops.py
 del *.py
 goto ENDBAT
@@ -941,7 +973,7 @@ echo ===========================================================================
 echo =                     XLF and flavours to bilingual table                      =
 echo ================================================================================
 echo Converting files...
-call "%okapiPath%\tikal.bat" -2tbl *.*xl* -fc W:\Tools\ENGTools\Parsers\okapi\okf_xliff@xlf2tmx.fprm -csv -tmx -ie utf-8
+call "%okapiPath%\tikal.bat" -2tbl *.*xl* -fc %engRootPath%\Parsers\okapi\okf_xliff@xlf2tmx.fprm -csv -tmx -ie utf-8
 goto ENDBAT
 
 REM ----------------------------------------------------------------------------
@@ -954,7 +986,7 @@ echo ===========================================================================
 echo =                            Clean up TMX                                     =
 echo ================================================================================
 echo Cleaning up TMX file(s)...
-robocopy W:\Tools\ENGTools\Dependencies\python . cleanprops.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . cleanprops.py /NDL /NFL /NJH /NJS /NP >nul
 call python cleanprops.py
 del *.py
 goto ENDBAT
@@ -969,7 +1001,7 @@ echo ===========================================================================
 echo =                Excel to TMX (bilingual/multilingual)                        =
 echo ================================================================================
 echo Running excel2tmx_multilingual.py...
-robocopy W:\Tools\ENGTools\Dependencies\python . excel2tmx_multilingual.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . excel2tmx_multilingual.py /NDL /NFL /NJH /NJS /NP >nul
 call python excel2tmx_multilingual.py
 del *.py
 goto ENDBAT
@@ -997,7 +1029,7 @@ echo ===========================================================================
 echo =                       Resegment paragraph-based TMX                         =
 echo ================================================================================
 echo Resegmenting TMX...
-call %okapiPath%\tikal.bat -x *.tmx -seg W:\Tools\ENGTools\Segmentation\okapi\defaultSegmentation.srx -ie utf-8
+call %okapiPath%\tikal.bat -x *.tmx -seg %engRootPath%\Segmentation\okapi\defaultSegmentation.srx -ie utf-8
 if not exist "*.tmx.xlf" (
     echo [ERROR] Okapi did not create any .tmx.xlf files to resegment.
     goto ENDBAT
@@ -1010,7 +1042,7 @@ if not exist "*.tmx.xlf.tmx" (
 del "%original_path%\*.tmx.xlf"
 cd /d "%original_path%"
 rename *.tmx.xlf.tmx by-sentence.tmx
-robocopy W:\Tools\ENGTools\Dependencies\python . cleanprops.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . cleanprops.py /NDL /NFL /NJH /NJS /NP >nul
 call python cleanprops.py
 del *.py
 goto ENDBAT
@@ -1052,7 +1084,7 @@ echo ===========================================================================
 echo =                        Translation 2.0                                       =
 echo ================================================================================
 echo Renaming files...
-robocopy W:\Tools\ENGTools\Dependencies\python . rename_translation_2_0.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . rename_translation_2_0.py /NDL /NFL /NJH /NJS /NP >nul
 call python rename_translation_2_0.py
 del *.py
 
@@ -1100,12 +1132,12 @@ call :TRANSFER_PAIR "en-gb_source.xlf" "en-in_target.xlf"
 
 echo.
 echo Escaping special characters...
-robocopy W:\Tools\ENGTools\Dependencies\python . escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . escape_more_than.py /NDL /NFL /NJH /NJS /NP >nul
 call python escape_more_than.py
 del *.py
 
 echo Keeping 100%% matches and above...
-robocopy W:\Tools\ENGTools\Dependencies\python . exact_match.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . exact_match.py /NDL /NFL /NJH /NJS /NP >nul
 call python exact_match.py
 del *.py
 goto ENDBAT
@@ -1117,7 +1149,7 @@ echo ===========================================================================
 echo =                             Translation                                      =
 echo ================================================================================
 echo Renaming files and transferring translations...
-robocopy W:\Tools\ENGTools\Dependencies\python . transfer.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . transfer.py /NDL /NFL /NJH /NJS /NP >nul
 call python transfer.py
 del *.py
 goto ENDBAT
@@ -1213,7 +1245,7 @@ if not exist "%original_path%\alignment.tmx" (
     echo [ERROR] alignment.tmx could not be moved to "%original_path%".
     goto ENDBAT
 )
-call "C:\Program Files\Analysis Package\bin\TmxSplitAll.cmd" "%original_path%\alignment.tmx" -f W:\Tools\ENGTools\Dependencies\ap\tmxtexttotag.properties
+call "C:\Program Files\Analysis Package\bin\TmxSplitAll.cmd" "%original_path%\alignment.tmx" -f %engRootPath%\Dependencies\ap\tmxtexttotag.properties
 if not exist "%original_path%\alignment-fixed.tmx" (
     echo [ERROR] GLAP did not create alignment-fixed.tmx.
     goto ENDBAT
@@ -1227,7 +1259,7 @@ echo [ERROR] Invalid choice. Proceeding without segmentation...
 goto NOSEGMENTTMX
 
 :SEGMENTTMX
-call "%okapiPath%\tikal.bat" -x "%original_path%\alignment-fixed.tmx" -seg W:\Tools\ENGTools\Segmentation\okapi\defaultSegmentation.srx -ie utf-8
+call "%okapiPath%\tikal.bat" -x "%original_path%\alignment-fixed.tmx" -seg %engRootPath%\Segmentation\okapi\defaultSegmentation.srx -ie utf-8
 call "%okapiPath%\tikal.bat" -2tmx "%original_path%\alignment-fixed.tmx.xlf" -ie utf-8
 if not exist "%original_path%\alignment-fixed.tmx.xlf.tmx" (
     echo [ERROR] Sentence-segmented TMX was not created.
@@ -1237,7 +1269,7 @@ del "%original_path%\alignment-fixed.tmx"
 del "%original_path%\alignment-fixed.tmx.xlf"
 cd /d "%original_path%"
 rename alignment-fixed.tmx.xlf.tmx alignment-sentence.tmx
-robocopy W:\Tools\ENGTools\Dependencies\python . cleanprops.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . cleanprops.py /NDL /NFL /NJH /NJS /NP >nul
 call python cleanprops.py
 del *.py
 goto ENDBAT
@@ -1297,7 +1329,7 @@ color 06
 echo ================================================================================
 echo =               Batch update TOCs in .doc(x) files (Word)                    =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . updateTOC.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . updateTOC.py /NDL /NFL /NJH /NJS /NP >nul
 call python updateTOC.py
 del *.py
 goto ENDBAT
@@ -1308,7 +1340,7 @@ color 06
 echo ================================================================================
 echo =          Batch unhide and rename .doc(x) files (Word)                      =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . unhide_rename_docx.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . unhide_rename_docx.py /NDL /NFL /NJH /NJS /NP >nul
 call python unhide_rename_docx.py
 del *.py
 goto ENDBAT
@@ -1319,7 +1351,7 @@ color 06
 echo ================================================================================
 echo =   Batch hide based on color text in .doc(x) files (Word)            =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . hide_no_colour.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . hide_no_colour.py /NDL /NFL /NJH /NJS /NP >nul
 call python hide_no_colour.py
 del *.py
 goto ENDBAT
@@ -1334,7 +1366,7 @@ echo ===========================================================================
 REM Copy base files
 echo.
 echo Copying required files...
-robocopy W:\Tools\ENGTools\Dependencies\python . Anonymizer.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . Anonymizer.py /NDL /NFL /NJH /NJS /NP >nul
 
 REM Running script
 call python Anonymizer.py
@@ -1350,7 +1382,7 @@ color 06
 echo ================================================================================
 echo =          Batch unhide and rename .xls(x) files (Excel)                     =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . unhide_rename_xlsx.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . unhide_rename_xlsx.py /NDL /NFL /NJH /NJS /NP >nul
 call python unhide_rename_xlsx.py
 del *.py
 goto ENDBAT
@@ -1388,7 +1420,7 @@ color 06
 echo ================================================================================
 echo =                           Split multilingual .xlsx files                     =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . split2.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . split2.py /NDL /NFL /NJH /NJS /NP >nul
 call python split2.py
 del *.py
 goto ENDBAT
@@ -1399,7 +1431,7 @@ color 06
 echo ================================================================================
 echo =                         Merge multilingual .xlsx files                     =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . merge2.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . merge2.py /NDL /NFL /NJH /NJS /NP >nul
 call python merge2.py
 del *.py
 goto ENDBAT
@@ -1488,7 +1520,7 @@ color 0D
 echo ================================================================================
 echo =                           Flatten folder structure                          =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . flatten_folder_structure.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . flatten_folder_structure.py /NDL /NFL /NJH /NJS /NP >nul
 call python flatten_folder_structure.py
 del *.py
 goto ENDBAT
@@ -1499,7 +1531,7 @@ color 0D
 echo ================================================================================
 echo =                         Unflatten folder structure                          =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . unflatten_folder_structure.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . unflatten_folder_structure.py /NDL /NFL /NJH /NJS /NP >nul
 call python unflatten_folder_structure.py
 del *.py
 goto ENDBAT
@@ -1513,7 +1545,7 @@ color 0D
 echo ================================================================================
 echo =             Distribute files by target language code                        =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . distribute_TLC.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . distribute_TLC.py /NDL /NFL /NJH /NJS /NP >nul
 call python distribute_TLC.py
 del *.py
 goto ENDBAT
@@ -1551,7 +1583,7 @@ color 0D
 echo ================================================================================
 echo =                           Remove platform locales                                   =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . rename_platform_locales.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . rename_platform_locales.py /NDL /NFL /NJH /NJS /NP >nul
 call python rename_platform_locales.py
 del *.py
 goto ENDBAT
@@ -1592,7 +1624,7 @@ color 0D
 echo ================================================================================
 echo =               .en files to multilingual Excel (Regin)                      =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . Regin_FTC-2-Excel.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . Regin_FTC-2-Excel.py /NDL /NFL /NJH /NJS /NP >nul
 call python Regin_FTC-2-Excel.py
 del *.py
 goto ENDBAT
@@ -1603,7 +1635,7 @@ color 0D
 echo ================================================================================
 echo =           Multilingual Excel to individual .en files (Regin)              =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . Regin_reverse.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . Regin_reverse.py /NDL /NFL /NJH /NJS /NP >nul
 call python Regin_reverse.py
 del *.py
 goto ENDBAT
@@ -1617,7 +1649,7 @@ color 0D
 echo ================================================================================
 echo =                           Static Maxlen Setter                                   =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . maxlen.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . maxlen.py /NDL /NFL /NJH /NJS /NP >nul
 call python maxlen.py
 del *.py
 goto ENDBAT
@@ -1631,7 +1663,7 @@ color 0D
 echo ================================================================================
 echo =                           Batch Delete Column CSV                            =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . csv-delete_column.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . csv-delete_column.py /NDL /NFL /NJH /NJS /NP >nul
 call python csv-delete_column.py
 del *.py
 goto ENDBAT
@@ -1645,7 +1677,7 @@ color 0D
 echo ================================================================================
 echo =                           Web-crawling                                       =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . web-crawler.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . web-crawler.py /NDL /NFL /NJH /NJS /NP >nul
 call python web-crawler.py
 del *.py
 goto ENDBAT
@@ -1659,7 +1691,7 @@ color 0D
 echo ================================================================================
 echo =               Extract PDF Comments to Excel and CSV                           =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . export_pdf_comments.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . export_pdf_comments.py /NDL /NFL /NJH /NJS /NP >nul
 call python export_pdf_comments.py
 del *.py
 goto ENDBAT
@@ -1670,7 +1702,7 @@ color 0D
 echo ================================================================================
 echo =                           Append folder name to files                        =
 echo ================================================================================
-robocopy W:\Tools\ENGTools\Dependencies\python . RenameFolder2FilesExceptSdlxliff.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . RenameFolder2FilesExceptSdlxliff.py /NDL /NFL /NJH /NJS /NP >nul
 call python RenameFolder2FilesExceptSdlxliff.py
 del RenameFolder2FilesExceptSdlxliff.py
 goto ENDBAT
@@ -1713,7 +1745,7 @@ echo ===========================================================================
 echo =                         SRT to/from VTT                                         =
 echo ================================================================================
 echo.
-robocopy W:\Tools\ENGTools\Dependencies\python . vtt_srt.py /NDL /NFL /NJH /NJS /NP >nul
+robocopy %engRootPath%\Dependencies\python . vtt_srt.py /NDL /NFL /NJH /NJS /NP >nul
 call python vtt_srt.py
 del *.py
 goto ENDBAT
