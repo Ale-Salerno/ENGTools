@@ -1,5 +1,7 @@
 # ENGTools
 
+![CI](https://github.com/Ale-Salerno/ENGTools/actions/workflows/ci.yml/badge.svg)
+
 **Current version:** ENGTools 0.2
 
 ## Prerequisites
@@ -17,7 +19,7 @@
 - Access to the ENG root path configured in `config.toml` (`paths.eng_root`)
 
 ### Python
-Install the modules in `/home/runner/work/ENGTools/ENGTools/Dependencies/python/requirements.txt`, or at minimum:
+Install the modules in `Dependencies/python/requirements.txt`, or at minimum:
 - `pandas`
 - `openpyxl`
 - `xlrd`
@@ -94,16 +96,25 @@ The Microsoft Office workflows, Beurer split/merge flow, and some rename/unhide 
 ### 7. File Format Conversions
 - SRT to/from VTT
 
+## CI
+
+GitHub Actions runs automatically on every push and pull request. The workflow (`.github/workflows/ci.yml`) includes three jobs:
+
+- **lint** – checks the syntax of all Python scripts in `Dependencies/python/` using `python -m py_compile`
+- **dependencies** – installs all packages from `Dependencies/python/requirements.txt` and verifies no install errors occur
+- **tests** – runs `pytest --collect-only` so it succeeds even when no test files exist yet
+
 ## Repository Layout
-- `/home/runner/work/ENGTools/ENGTools/ENGTools.bat` - main menu entry point
-- `/home/runner/work/ENGTools/ENGTools/Dependencies/bats` - helper batch launchers and target-file creation scripts
-- `/home/runner/work/ENGTools/ENGTools/Dependencies/python` - feature scripts used by menu options
-- `/home/runner/work/ENGTools/ENGTools/Dependencies/mappings` - Edwards/Leybold/Atlas mapping workbooks
-- `/home/runner/work/ENGTools/ENGTools/Dependencies/macros` - Excel helper macros
-- `/home/runner/work/ENGTools/ENGTools/Dependencies/fonts` - Scholly QA font assets
-- `/home/runner/work/ENGTools/ENGTools/Parsers/okapi` - Okapi `.fprm` filters
-- `/home/runner/work/ENGTools/ENGTools/Pipelines` - Okapi/Rainbow pipelines
-- `/home/runner/work/ENGTools/ENGTools/Segmentation/okapi` - segmentation rules
+- `.github/workflows/ci.yml` - GitHub Actions CI workflow
+- `ENGTools.bat` - main menu entry point
+- `Dependencies/bats` - helper batch launchers and target-file creation scripts
+- `Dependencies/python` - feature scripts used by menu options
+- `Dependencies/mappings` - Edwards/Leybold/Atlas mapping workbooks
+- `Dependencies/macros` - Excel helper macros
+- `Dependencies/fonts` - Scholly QA font assets
+- `Parsers/okapi` - Okapi `.fprm` filters
+- `Pipelines` - Okapi/Rainbow pipelines
+- `Segmentation/okapi` - segmentation rules
 
 ## Notes and Known Constraints
 - Daimler, Epiroc, AXIS Type 4, and Beurer are specialized workflows with hardcoded language assumptions in the batch launcher; verify those assumptions before using them on new content.

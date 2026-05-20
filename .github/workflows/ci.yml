@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint Python scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check syntax of all Python scripts
+        run: |
+          find Dependencies/python -name "*.py" -print0 | xargs -0 --no-run-if-empty python -m py_compile
+
+  dependencies:
+    name: Install Python dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install packages from requirements.txt
+        run: pip install -r Dependencies/python/requirements.txt
+
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run pytest (collect only)
+        run: |
+          set +e
+          pytest --collect-only Dependencies/python/
+          exit_code=$?
+          set -e
+          # Exit code 5 means "no tests collected" — acceptable when no test files exist yet
+          [ $exit_code -eq 0 ] || [ $exit_code -eq 5 ]
