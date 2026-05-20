@@ -1,4 +1,5 @@
 [paths]
+# Use either forward slashes (/) or backslashes (\); ENGTools normalizes values at runtime.
 # Okapi installation folder (contains tikal.bat and rainbow.exe)
 okapi = "C:/Software/Okapi"
 # Root ENGTools shared folder (contains Dependencies, Parsers, Pipelines, Segmentation)

@@ -48,7 +48,7 @@ python -c "import tomllib; c=tomllib.load(open(r'%configPath%','rb')); p=c['path
 if errorlevel 1 (
     del "%pathsTmp%" >nul 2>&1
     echo [ERROR] Failed to read path settings from "%configPath%".
-    echo [ERROR] Make sure Python 3.11+ is available and config.toml is valid.
+    echo [ERROR] Make sure config.toml is valid and Python 3.11+ is available (tomllib required).
     pause
     goto CLOSE
 )
