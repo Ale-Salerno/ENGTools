@@ -1,4 +1,7 @@
 [paths]
+# Okapi installation folder (contains tikal.bat and rainbow.exe)
 okapi = "C:/Software/Okapi"
+# Root ENGTools shared folder (contains Dependencies, Parsers, Pipelines, Segmentation)
 eng_root = "W:/Tools/ENGTools"
+# Full path to 7z executable used for package creation/extraction
 sevenzip = "C:/Program Files/7-Zip/7z.exe"
