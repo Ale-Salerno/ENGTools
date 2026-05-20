@@ -33,7 +33,6 @@ ENGTools/
 │   │   └── mapping_Leybold.xlsx
 │   └── python/
 │       ├── Anonymizer.py
-│       ├── Atlas-OLD.py
 │       ├── Atlas.py
 │       ├── Edwards.py
 │       ├── Leybold.py
@@ -57,7 +56,6 @@ ENGTools/
 │       ├── hide_no_colour.py
 │       ├── maxlen.py
 │       ├── merge2.py
-│       ├── prep_qa_merge_json.py
 │       ├── proofread_state.py
 │       ├── pseudo.py
 │       ├── remove_empty_xlf.py
@@ -74,7 +72,6 @@ ENGTools/
 │       ├── transfer.py
 │       ├── unflatten_folder_structure.py
 │       ├── unhide_rename_docx.py
-│       ├── unhide_rename_word.py
 │       ├── unhide_rename_xlsx.py
 │       ├── updateTOC.py
 │       ├── vtt_srt.py
