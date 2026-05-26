@@ -6,9 +6,11 @@ the goal of this step is to establish the command hierarchy.
 """
 
 import sys
+from pathlib import Path
 import click
 from engtools import __version__
 from engtools.logger import setup_logging
+from engtools.workflows.sfp import run_standard
 
 
 # ---------------------------------------------------------------------------
@@ -32,7 +34,6 @@ def sfp() -> None:
 
 
 _SFP_COMMANDS = [
-    ("standard",         "Okapi standard SFP."),
     ("custom",           "Okapi custom SFP."),
     ("xliff",            "Okapi XLIFF SFP."),
     ("proofreading",     "Okapi SFP for proofreading."),
@@ -44,6 +45,18 @@ _SFP_COMMANDS = [
     ("edwards",          "Edwards / Leybold / Atlas brand processor."),
     ("confirm-sdlxliff", "Confirm segments in SDLXLIFF files."),
 ]
+
+
+@sfp.command(name="standard", help="Okapi standard SFP.")
+@click.option("--sl", default="", metavar="LANG", help="Source language code (e.g. en).")
+@click.option("--tl", default="", metavar="LANG", help="Target language code (e.g. de).")
+def sfp_standard(sl: str, tl: str) -> None:
+    """Okapi standard Source File Preparation."""
+    try:
+        run_standard(sl=sl, tl=tl, cwd=Path.cwd())
+    except RuntimeError as exc:
+        click.echo(str(exc), err=True)
+        sys.exit(1)
 
 for _name, _help in _SFP_COMMANDS:
     def _make_sfp(cmd_name: str, cmd_help: str) -> click.Command:
