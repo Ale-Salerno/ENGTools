@@ -13,12 +13,16 @@ def _run_command(command: list[str], success_codes: set[int] | None = None) -> N
     logging.info("Running command: %s", command_text)
 
     try:
-        result = subprocess.run(command, check=False)
+        result = subprocess.run(command, check=False, capture_output=True, text=True)
     except OSError as exc:
         logging.error("Failed to launch command: %s", command_text)
         raise RuntimeError(f"Failed to launch command: {command_text}") from exc
 
     if result.returncode not in expected_codes:
+        if result.stdout:
+            logging.error("Command stdout:\n%s", result.stdout.rstrip())
+        if result.stderr:
+            logging.error("Command stderr:\n%s", result.stderr.rstrip())
         logging.error("Command failed with exit code %s: %s", result.returncode, command_text)
         raise RuntimeError(
             f"Command failed with exit code {result.returncode}: {command_text}"
@@ -42,7 +46,11 @@ def robocopy(
     files: str = "*.*",
     extra_flags: list[str] | None = None,
 ) -> None:
-    """Wrap robocopy. Treat exit codes 0-3 as success (robocopy convention)."""
+    """Wrap robocopy.
+
+    Success codes are 0 (no copy needed), 1 (files copied), 2 (extra files/dirs in destination),
+    and 3 (files copied plus extras detected). Any other exit code raises RuntimeError.
+    """
     flags = extra_flags or []
     _run_command(["robocopy", src, dst, files, *flags], success_codes={0, 1, 2, 3})
 
@@ -53,7 +61,7 @@ def make_zip(sevenzip_path: str, output_zip: str, source_glob: str) -> None:
 
 
 def mkdir(path: str) -> None:
-    """Create a directory if it doesn't exist. Equivalent to mkdir ... 2>nul."""
+    """Create a directory if it doesn't exist, without failing when it already exists."""
     target = Path(path)
     logging.info("Ensuring directory exists: %s", target)
     try:
@@ -83,8 +91,12 @@ def copy_script_and_run(
             f"Failed to copy script '{source_path}' to '{destination_path}'"
         ) from exc
 
+    run_error: Exception | None = None
     try:
         run_python_script(str(destination_path), args=args)
+    except Exception as exc:
+        run_error = exc
+        raise
     finally:
         if destination_path.exists():
             logging.info("Deleting temporary script: %s", destination_path)
@@ -92,6 +104,7 @@ def copy_script_and_run(
                 destination_path.unlink()
             except OSError as exc:
                 logging.error("Failed to delete temporary script: %s", destination_path)
-                raise RuntimeError(
-                    f"Failed to delete temporary script: {destination_path}"
-                ) from exc
+                if run_error is None:
+                    raise RuntimeError(
+                        f"Failed to delete temporary script: {destination_path}"
+                    ) from exc

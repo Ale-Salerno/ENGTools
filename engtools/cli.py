@@ -7,6 +7,7 @@ the goal of this step is to establish the command hierarchy.
 
 import sys
 import click
+from engtools import __version__
 from engtools.logger import setup_logging
 
 
@@ -15,7 +16,7 @@ from engtools.logger import setup_logging
 # ---------------------------------------------------------------------------
 
 @click.group()
-@click.version_option(version="0.3.0", prog_name="engtools")
+@click.version_option(version=__version__, prog_name="engtools")
 def main() -> None:
     """ENGTools — LanguageWire Engineering toolbox."""
     setup_logging()
