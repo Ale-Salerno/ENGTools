@@ -10,3 +10,5 @@ PyMuPDF
 requests
 beautifulsoup4
 PySide6
+click>=8.0
+tomli>=2.0; python_version < "3.11"
